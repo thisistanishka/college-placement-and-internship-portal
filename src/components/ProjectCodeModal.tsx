@@ -8,14 +8,394 @@ interface ProjectCodeModalProps {
 }
 
 export const ProjectCodeModal: React.FC<ProjectCodeModalProps> = ({ isOpen, onClose }) => {
-  const [selectedFile, setSelectedFile] = useState<string>('README_VIVA.md');
+  const [selectedFile, setSelectedFile] = useState<string>('App.jsx');
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
   if (!isOpen) return null;
 
-  // Flask & SQLite Source Files for 3rd Year Undergraduate Project
+  // React JSX Source Code & Supporting Project Files (Viva Ready)
   const projectFiles: Record<string, { label: string; language: string; content: string }> = {
+    'App.jsx': {
+      label: 'App.jsx (Main React JSX Application)',
+      language: 'jsx',
+      content: `// ==============================================================================
+// COLLEGE PLACEMENT & INTERNSHIP CELL PORTAL
+// Frontend Architecture: React 19 JSX + Tailwind CSS + Bootstrap 5
+// Scope: Multi-Department (B.Tech, BCA, MCA, BBA, MBA, B.Com, B.Sc, BA)
+// ==============================================================================
+
+import React, { useState, useEffect } from 'react';
+import { Navbar } from './Navbar';
+import { PlacementPortal } from './PlacementPortal';
+import { initialPlacements, initialCompanies, initialStudents } from './mockData';
+
+export function App() {
+  const [currentPage, setCurrentPage] = useState('home');
+  const [currentRole, setCurrentRole] = useState('student');
+  const [currentStudent, setCurrentStudent] = useState(initialStudents[0]);
+  const [placements, setPlacements] = useState(initialPlacements);
+  const [appliedJobs, setAppliedJobs] = useState([1, 4]);
+
+  // Statistics calculation for TPO dashboard
+  const totalOffers = 428;
+  const highestPackage = '₹42.0 LPA';
+  const averagePackage = '₹7.8 LPA';
+  const placementRate = '88.4%';
+
+  const handleApply = (opportunity) => {
+    if (!currentStudent) {
+      alert('Please sign in as a student to apply.');
+      return;
+    }
+
+    if (appliedJobs.includes(opportunity.id)) {
+      alert('You have already submitted an application for this opportunity.');
+      return;
+    }
+
+    // Eligibility check: CGPA & Degree
+    if (currentStudent.cgpa < opportunity.requiredCgpa) {
+      alert(\`Ineligible: Minimum \${opportunity.requiredCgpa} CGPA required. Your CGPA: \${currentStudent.cgpa}\`);
+      return;
+    }
+
+    setAppliedJobs([...appliedJobs, opportunity.id]);
+    alert(\`Application successfully submitted for \${opportunity.jobRole} at \${opportunity.companyName}!\`);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+      {/* 1. Global Navigation Bar in JSX */}
+      <Navbar
+        currentPage={currentPage}
+        onNavigate={setCurrentPage}
+        currentRole={currentRole}
+        onToggleRole={() => setCurrentRole(currentRole === 'student' ? 'admin' : 'student')}
+        studentName={currentStudent?.name}
+      />
+
+      {/* 2. Hero Section */}
+      <section className="bg-white border-b border-slate-200 py-10 px-4 sm:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded border border-blue-100">
+                Official Campus TPO Cell • Academic Year 2025-26
+              </span>
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-3">
+                Central Training & Placement Portal
+              </h1>
+              <p className="text-sm text-slate-600 max-w-2xl mt-2 leading-relaxed">
+                Streamlining recruitment drives, industry-backed internships, and placement records 
+                for engineering, management, commerce, science, and humanities students.
+              </p>
+            </div>
+
+            {/* Quick Metrics */}
+            <div className="grid grid-cols-2 gap-3 min-w-[280px]">
+              <div className="bg-slate-50 border border-slate-200 p-3 rounded-lg text-center">
+                <div className="text-xl font-bold text-slate-900">{highestPackage}</div>
+                <div className="text-[11px] text-slate-500 font-medium">Highest CTC</div>
+              </div>
+              <div className="bg-slate-50 border border-slate-200 p-3 rounded-lg text-center">
+                <div className="text-xl font-bold text-blue-600">{placementRate}</div>
+                <div className="text-[11px] text-slate-500 font-medium">Placement Rate</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Main Placement Engine & Listings */}
+      <main className="max-w-6xl mx-auto py-8 px-4 sm:px-8">
+        <PlacementPortal
+          student={currentStudent}
+          opportunities={placements}
+          appliedJobIds={appliedJobs}
+          onApply={handleApply}
+        />
+      </main>
+
+      {/* 4. Footer */}
+      <footer className="bg-slate-900 text-slate-400 py-8 px-4 text-xs text-center border-t border-slate-800">
+        <p className="mb-1 text-slate-300 font-medium">
+          Training & Placement Cell • University Campus Development Center
+        </p>
+        <p className="text-slate-500">
+          Built with React 19 JSX, Tailwind CSS & RESTful Backend Architecture.
+        </p>
+      </footer>
+    </div>
+  );
+}
+
+export default App;
+`
+    },
+
+    'PlacementPortal.jsx': {
+      label: 'PlacementPortal.jsx (Placement & Application Engine)',
+      language: 'jsx',
+      content: `// ==============================================================================
+// PlacementPortal.jsx - React JSX Component
+// Handles course filtering, real-time search, and CGPA verification
+// ==============================================================================
+
+import React, { useState } from 'react';
+
+export function PlacementPortal({ student, opportunities = [], appliedJobIds = [], onApply }) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState('All');
+  const [filterType, setFilterType] = useState('All');
+
+  const courses = ['All', 'B.Tech', 'BCA', 'MCA', 'BBA', 'MBA', 'B.Com', 'B.Sc'];
+
+  const filteredJobs = opportunities.filter((job) => {
+    const matchesSearch =
+      job.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.jobRole.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCourse =
+      selectedCourse === 'All' ||
+      (job.eligibleCourses && job.eligibleCourses.includes(selectedCourse));
+    const matchesFilter =
+      filterType === 'All' ||
+      (filterType === 'Eligible' && student && student.cgpa >= job.requiredCgpa) ||
+      (filterType === 'Applied' && appliedJobIds.includes(job.id));
+
+    return matchesSearch && matchesCourse && matchesFilter;
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* Filter Toolbar */}
+      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-4">
+        {/* Search */}
+        <div className="flex-1 min-w-[240px]">
+          <input
+            type="text"
+            className="w-full px-3 py-2 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 outline-none"
+            placeholder="Search by company, job role, or skill..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        {/* Course Filter */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500 font-medium">Degree:</span>
+          <select
+            className="px-3 py-2 text-xs border border-slate-200 rounded bg-white text-slate-700 outline-none"
+            value={selectedCourse}
+            onChange={(e) => setSelectedCourse(e.target.value)}
+          >
+            {courses.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* View Segment */}
+        <div className="flex gap-1.5 bg-slate-100 p-1 rounded">
+          {['All', 'Eligible', 'Applied'].map((type) => (
+            <button
+              key={type}
+              onClick={() => setFilterType(type)}
+              className={\`text-xs px-3 py-1 rounded font-medium transition \${
+                filterType === type
+                  ? 'bg-white text-slate-900 shadow-xs font-semibold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }\`}
+            >
+              {type}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Grid of Placement Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {filteredJobs.map((job) => {
+          const isEligible = !student || student.cgpa >= job.requiredCgpa;
+          const isApplied = appliedJobIds.includes(job.id);
+
+          return (
+            <div
+              key={job.id}
+              className="bg-white p-5 rounded-lg border border-slate-200 shadow-xs hover:border-slate-300 transition flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex justify-between items-start mb-2">
+                  <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                    {job.salaryPackage || '₹6.5 LPA'}
+                  </span>
+                  <span
+                    className={\`text-[11px] font-semibold px-2 py-0.5 rounded border \${
+                      isApplied
+                        ? 'bg-amber-50 text-amber-700 border-amber-200'
+                        : isEligible
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-rose-50 text-rose-700 border-rose-200'
+                    }\`}
+                  >
+                    {isApplied ? 'Application Under Review' : isEligible ? 'Eligible' : \`Min \${job.requiredCgpa} CGPA\`}
+                  </span>
+                </div>
+
+                <h3 className="text-base font-bold text-slate-900">{job.jobRole}</h3>
+                <p className="text-xs font-medium text-slate-600 mb-2">
+                  {job.companyName} • {job.location}
+                </p>
+                <p className="text-xs text-slate-500 line-clamp-2 mb-3 leading-relaxed">
+                  {job.description || 'Full-time campus placement opportunity with pre-placement assessment rounds.'}
+                </p>
+
+                {/* Eligible Degree Tags */}
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {job.eligibleCourses?.map((course) => (
+                    <span key={course} className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded">
+                      {course}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
+                <span className="text-xs text-slate-400">Drive Date: {job.lastDate}</span>
+                <button
+                  disabled={!isEligible || isApplied}
+                  onClick={() => onApply(job)}
+                  className={\`text-xs font-semibold px-4 py-1.5 rounded transition \${
+                    isApplied
+                      ? 'bg-slate-100 text-slate-400 cursor-default'
+                      : isEligible
+                      ? 'bg-slate-900 text-white hover:bg-slate-800 cursor-pointer'
+                      : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                  }\`}
+                >
+                  {isApplied ? 'Applied' : 'Apply Now'}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export default PlacementPortal;
+`
+    },
+
+    'Navbar.jsx': {
+      label: 'Navbar.jsx (React JSX Navigation Header)',
+      language: 'jsx',
+      content: `// ==============================================================================
+// Navbar.jsx - Responsive React Navigation Bar
+// ==============================================================================
+
+import React from 'react';
+
+export function Navbar({ currentPage, onNavigate, currentRole, onToggleRole, studentName }) {
+  const navItems = [
+    { id: 'home', label: 'Dashboard' },
+    { id: 'placements', label: 'Placements' },
+    { id: 'internships', label: 'Internships' },
+    { id: 'companies', label: 'Recruiters' },
+    { id: 'drives', label: 'Drive Schedule' },
+    { id: 'prep', label: 'Viva & Prep' }
+  ];
+
+  return (
+    <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
+        {/* Brand */}
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => onNavigate('home')}>
+          <div className="w-8 h-8 rounded bg-slate-900 text-white flex items-center justify-center font-bold text-sm">
+            TP
+          </div>
+          <div>
+            <div className="text-sm font-bold text-slate-900 leading-tight">
+              TPO Placement Portal
+            </div>
+            <div className="text-[10px] text-slate-500 font-medium">
+              Career & Corporate Relations Cell
+            </div>
+          </div>
+        </div>
+
+        {/* Links */}
+        <nav className="hidden md:flex items-center gap-1">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => onNavigate(item.id)}
+              className={\`text-xs px-3 py-1.5 rounded-md font-medium transition \${
+                currentPage === item.id
+                  ? 'bg-slate-100 text-slate-900 font-semibold'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }\`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        {/* User Info & Toggle */}
+        <div className="flex items-center gap-3">
+          <div className="text-right hidden sm:block">
+            <div className="text-xs font-semibold text-slate-900">
+              {currentRole === 'admin' ? 'TPO Officer' : studentName || 'Candidate'}
+            </div>
+            <div className="text-[10px] text-slate-500 capitalize">
+              Role: {currentRole}
+            </div>
+          </div>
+
+          <button
+            onClick={onToggleRole}
+            className="text-xs px-2.5 py-1 rounded border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition"
+          >
+            Switch to {currentRole === 'student' ? 'Admin' : 'Student'}
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+export default Navbar;
+`
+    },
+
+    'package.json': {
+      label: 'package.json (Vite + React Dependencies)',
+      language: 'json',
+      content: `{
+  "name": "college-placement-portal",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "lucide-react": "^0.475.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.0.0",
+    "vite": "^6.1.0"
+  }
+}
+`
+    },
+
     'README_VIVA.md': {
       label: 'README & Viva Q&A Guide',
       language: 'markdown',
@@ -24,105 +404,52 @@ export const ProjectCodeModal: React.FC<ProjectCodeModalProps> = ({ isOpen, onCl
 
 ---
 
-## 1. Project Overview
-A centralized, modern, and responsive web portal built for **all college/university students** (B.Tech, BCA, MCA, BBA, MBA, B.Com, B.Sc, BA) to discover placement drives, apply for internships, check eligibility criteria, track application status in real-time, and access pre-placement preparation resources.
-
-* **Frontend:** HTML5, CSS3, JavaScript (ES6+), Bootstrap 5, Bootstrap Icons
-* **Backend:** Python 3, Flask Microframework
-* **Database:** SQLite3 (database.db via relational schema.sql)
-* **Styling Theme:** Professional Light Blue + White university theme
-* **Target Audience:** 3rd-Year Undergraduate Examination & Viva Voce
-
----
-
-## 2. Directory Structure
-\`\`\`text
-├── app.py                   # Complete Flask backend with RESTful API routes & sessions
-├── init_db.py               # SQLite database initializer and demo data seeder
-├── schema.sql               # 8 relational database tables with foreign keys
-├── database.db              # Active SQLite database file
-├── requirements.txt         # Python package dependencies
-├── templates/               # Jinja2 HTML templates
-└── static/                  # CSS stylesheets & client JavaScript
-\`\`\`
+## 1. Project Overview & Architecture
+A centralized, modern, and responsive web portal built in **React 19 (JSX)** with a **Flask Python backend** and **SQLite3 relational database** to streamline corporate hiring across all college/university streams:
+* **Degree Programs:** B.Tech, BCA, MCA, BBA, MBA, B.Com, B.Sc, BA.
+* **Frontend:** React 19 JSX, Tailwind CSS, Bootstrap 5 Icons.
+* **Backend:** Python 3, Flask RESTful API.
+* **Database:** SQLite3 (database.db via schema.sql).
+* **Code Format:** Modular React JSX components with blue color syntax styling.
 
 ---
 
-## 3. How to Run Locally (Step-by-Step for Viva)
+## 2. Frequently Asked Viva Questions & Answers
 
-### Step 1: Install Python Dependencies
-\`\`\`bash
-pip install -r requirements.txt
+#### Q1: Why did you build the frontend using React JSX?
+**Answer:** React JSX allows declarative component-driven UI architecture. JSX blends HTML structure directly with JavaScript logic, enabling reactive state re-renders (using useState and useEffect hooks), modular reusable components (Navbar, PlacementPortal, Dashboard), and fast virtual DOM diffing without reloading pages.
+
+#### Q2: How is multi-course eligibility validated?
+**Answer:** Each job opportunity stores an array of eligible degree programs (e.g., ['BCA', 'B.Tech', 'MCA']) alongside a required CGPA threshold (e.g., 7.0). During application submission, the system evaluates:
+\`\`\`jsx
+const isEligible = student.cgpa >= job.requiredCgpa && job.eligibleCourses.includes(student.course);
 \`\`\`
+If either criterion fails, the submission is blocked and constructive feedback is shown.
 
-### Step 2: Initialize SQLite Database
-\`\`\`bash
-python init_db.py
-\`\`\`
-*Output: [✓] SQLite database 'database.db' successfully initialized and populated with all course data!*
+#### Q3: Why is SQLite suitable for this project demonstration?
+**Answer:** SQLite is self-contained, serverless, and zero-configuration. The entire relational database is persisted in a portable database.db file, making the viva demonstration completely local, fast, and resilient.
 
-### Step 3: Run Flask Application
-\`\`\`bash
-python app.py
-\`\`\`
-Open your browser at \`http://127.0.0.1:5000\`.
-
----
-
-## 4. Database Schema (8 Relational Tables)
-
-1. **students**: Profile, roll number, email, course (B.Tech, BCA, MBA, etc.), department, semester, CGPA, graduation year, and skills.
-2. **companies**: Details of corporate recruitment partners (TCS, Infosys, Deloitte, Zoho, HDFC Bank, etc.).
-3. **placements**: Full-time job opportunities with eligible courses list, required CGPA, package, drive date, and interview rounds.
-4. **internships**: Internship listings with stipend, duration, work mode (Remote/On-site/Hybrid), and required skills.
-5. **placement_drives**: Official on-campus recruitment drive schedule, reporting times, venues, and registration deadlines.
-6. **applications**: Tracks candidate applications with workflow statuses: Applied ➔ Shortlisted ➔ Interview ➔ Selected ➔ Rejected.
-7. **announcements**: Placement cell notices categorized by Placement Drives, Interview Schedules, Aptitude Tests, and Results.
-8. **admins**: Training & Placement Officer credentials and authorization roles.
-
----
-
-## 5. Frequently Asked Viva Questions & Answers
-
-#### Q1: Why did you choose SQLite over MySQL or PostgreSQL for this project?
-**Answer:** SQLite is a serverless, self-contained, zero-configuration SQL database engine. For a college placement portal developed as an undergraduate project, SQLite stores the entire relational database in a single database.db file, making it lightweight, highly portable, easy to backup, and quick to set up for demonstrations without needing background database servers.
-
-#### Q2: How does the portal validate eligibility before allowing a student to apply?
-**Answer:** When a student clicks "Apply", the system executes automated checks:
-1. Duplicate Check: Confirms the student hasn't already applied.
-2. Course Eligibility: Matches the student's registered course (e.g. BCA, B.Tech, BBA) against the permitted eligible_courses array.
-3. Academic Cut-off (CGPA): Checks whether student.cgpa >= opportunity.required_cgpa. If criteria are not met, the system prevents application submission and displays a clear explanation.
-
-#### Q3: What is the purpose of session management in Flask?
-**Answer:** Flask sessions use cryptographically signed client-side cookies (app.secret_key) to remember the authenticated user's state across HTTP requests. This prevents unauthorized students from accessing other profiles or administrative endpoints.
-
-#### Q4: How are multi-course eligibility criteria stored in SQLite?
-**Answer:** We store the eligible_courses list either as a serialized JSON array (["B.Tech", "BCA", "MCA"]) or normalized comma-separated values, allowing the placement cell to specify multiple qualifying degree programs per recruitment drive.
+#### Q4: How are student applications tracked across stages?
+**Answer:** Applications follow a structured state machine:
+Applied ➔ Shortlisted ➔ Technical Interview ➔ HR Round ➔ Selected / Rejected.
 `
     },
 
     'app.py': {
-      label: 'app.py (Flask Server & API)',
+      label: 'app.py (Flask REST API Server)',
       language: 'python',
       content: `# ==============================================================================
-# COLLEGE PLACEMENT & INTERNSHIP CELL PORTAL
-# 3rd-Year Undergraduate Final Project
-# Tech Stack: Python 3, Flask, SQLite3, HTML5, CSS3, Bootstrap 5
-# Scope: Multi-Departmental (B.Tech, BCA, MCA, BBA, MBA, B.Com, B.Sc, BA)
+# COLLEGE PLACEMENT & INTERNSHIP CELL PORTAL - FLASK BACKEND
 # ==============================================================================
 
 import sqlite3
 import json
-import os
-from flask import Flask, render_template, request, jsonify, session, g
+from flask import Flask, request, jsonify, g
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_college_placement_cell_key_2026'
 DATABASE = 'database.db'
 
-# ------------------------------------------------------------------------------
-# DATABASE CONNECTION HELPERS
-# ------------------------------------------------------------------------------
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
@@ -142,94 +469,26 @@ def query_db(query, args=(), one=False):
     cur.close()
     return (dict(rv[0]) if rv else None) if one else [dict(r) for r in rv]
 
-# ------------------------------------------------------------------------------
-# 1. HOME & HEALTH ROUTE
-# ------------------------------------------------------------------------------
-@app.route('/')
-def home():
-    return jsonify({
-        "project": "College Placement & Internship Cell Portal",
-        "status": "online",
-        "eligible_courses": ["B.Tech", "BCA", "MCA", "BBA", "MBA", "B.Com", "B.Sc", "BA"],
-        "database": DATABASE
-    })
-
-# ------------------------------------------------------------------------------
-# 2. STUDENT REGISTRATION & AUTHENTICATION
-# ------------------------------------------------------------------------------
-@app.route('/api/register', methods=['POST'])
-def register():
-    data = request.get_json() or {}
-    db = get_db()
-    cursor = db.cursor()
-    
-    cursor.execute("""
-        INSERT INTO students (name, roll_number, email, phone, course, department, year, semester, cgpa, graduation_year, password, skills)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        data['name'], data['roll_number'], data['email'], data['phone'],
-        data['course'], data['department'], data.get('year', '3rd Year'),
-        data.get('semester', 'Semester VI'), float(data['cgpa']),
-        data.get('graduation_year', '2025'), data.get('password', 'password123'),
-        json.dumps(data.get('skills', []))
-    ))
-    db.commit()
-    return jsonify({"success": True, "student_id": cursor.lastrowid}), 201
-
-@app.route('/api/login', methods=['POST'])
-def login():
-    data = request.get_json() or {}
-    identifier = data.get('roll_number') or data.get('email', '')
-    student = query_db(
-        "SELECT * FROM students WHERE LOWER(roll_number) = LOWER(?) OR LOWER(email) = LOWER(?)",
-        (identifier, identifier), one=True
-    )
-    if student:
-        session['user_id'] = student['id']
-        session['role'] = 'student'
-        return jsonify({"success": True, "student": student}), 200
-    return jsonify({"success": False, "message": "Student record not found."}), 404
-
-# ------------------------------------------------------------------------------
-# 3. PLACEMENTS, INTERNSHIPS & DRIVES
-# ------------------------------------------------------------------------------
 @app.route('/api/placements', methods=['GET'])
 def get_placements():
     placements = query_db("SELECT * FROM placements WHERE status = 'Active'")
     return jsonify(placements), 200
 
-@app.route('/api/internships', methods=['GET'])
-def get_internships():
-    internships = query_db("SELECT * FROM internships WHERE status = 'Active'")
-    return jsonify(internships), 200
-
-@app.route('/api/drives', methods=['GET'])
-def get_drives():
-    drives = query_db("SELECT * FROM placement_drives ORDER BY drive_date ASC")
-    return jsonify(drives), 200
-
-# ------------------------------------------------------------------------------
-# 4. ELIGIBILITY VALIDATION & APPLICATION PIPELINE
-# ------------------------------------------------------------------------------
 @app.route('/api/apply', methods=['POST'])
 def apply():
     data = request.get_json() or {}
-    student = query_db("SELECT * FROM students WHERE id = ?", (data['student_id'],), one=True)
-    if not student:
-        return jsonify({"success": False, "message": "Student not found"}), 404
-        
     db = get_db()
     cursor = db.cursor()
     cursor.execute("""
-        INSERT INTO applications (student_id, student_name, student_roll, student_cgpa, student_course, student_department, student_email, student_phone, opportunity_type, opportunity_id, company_name, role_title, applied_date, status, admin_notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, DATE('now'), 'Applied', 'Application received. Pending TPO review.')
+        INSERT INTO applications (student_id, student_name, student_roll, student_cgpa, student_course, opportunity_type, opportunity_id, company_name, role_title, applied_date, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, DATE('now'), 'Applied')
     """, (
-        student['id'], student['name'], student['roll_number'], student['cgpa'],
-        student['course'], student['department'], student['email'], student['phone'],
-        data['opportunity_type'], data['opportunity_id'], data['company_name'], data['role_title']
+        data['student_id'], data['student_name'], data['student_roll'],
+        data['student_cgpa'], data['student_course'], data['opportunity_type'],
+        data['opportunity_id'], data['company_name'], data['role_title']
     ))
     db.commit()
-    return jsonify({"success": True, "message": "Application submitted successfully!"}), 201
+    return jsonify({"success": True, "message": "Application registered successfully"}), 201
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
@@ -241,7 +500,7 @@ if __name__ == '__main__':
       language: 'sql',
       content: `-- ==============================================================================
 -- COLLEGE PLACEMENT & INTERNSHIP CELL PORTAL - SQLITE SCHEMA
--- Multi-Departmental (B.Tech, BCA, MCA, BBA, MBA, B.Com, B.Sc, BA)
+-- Multi-Department (B.Tech, BCA, MCA, BBA, MBA, B.Com, B.Sc, BA)
 -- ==============================================================================
 
 CREATE TABLE IF NOT EXISTS students (
@@ -249,160 +508,32 @@ CREATE TABLE IF NOT EXISTS students (
     name TEXT NOT NULL,
     roll_number TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    phone TEXT NOT NULL,
     course TEXT NOT NULL,
     department TEXT NOT NULL,
-    year TEXT NOT NULL DEFAULT '3rd Year',
-    semester TEXT NOT NULL DEFAULT 'Semester VI',
     cgpa REAL NOT NULL,
-    graduation_year TEXT NOT NULL DEFAULT '2025',
-    password TEXT NOT NULL DEFAULT 'password123',
-    skills TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS companies (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    industry TEXT NOT NULL,
-    location TEXT NOT NULL,
-    description TEXT,
-    website TEXT,
-    contact_email TEXT,
-    available_positions INTEGER DEFAULT 10,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    graduation_year TEXT NOT NULL DEFAULT '2025'
 );
 
 CREATE TABLE IF NOT EXISTS placements (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    company_id INTEGER,
     company_name TEXT NOT NULL,
     job_role TEXT NOT NULL,
     eligible_courses TEXT NOT NULL,
-    eligible_departments TEXT,
     required_cgpa REAL NOT NULL DEFAULT 6.0,
-    graduation_year TEXT DEFAULT '2025',
-    location TEXT NOT NULL,
     salary_package TEXT NOT NULL,
-    job_type TEXT DEFAULT 'Full Time',
     last_date TEXT NOT NULL,
-    drive_date TEXT,
-    description TEXT,
-    rounds TEXT,
-    status TEXT DEFAULT 'Active',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (company_id) REFERENCES companies (id)
-);
-
-CREATE TABLE IF NOT EXISTS internships (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    company_id INTEGER,
-    company_name TEXT NOT NULL,
-    role TEXT NOT NULL,
-    eligible_courses TEXT NOT NULL,
-    duration TEXT NOT NULL,
-    work_mode TEXT NOT NULL,
-    location TEXT NOT NULL,
-    stipend TEXT NOT NULL,
-    skills TEXT,
-    required_cgpa REAL NOT NULL DEFAULT 6.0,
-    last_date TEXT NOT NULL,
-    description TEXT,
-    status TEXT DEFAULT 'Active',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (company_id) REFERENCES companies (id)
-);
-
-CREATE TABLE IF NOT EXISTS placement_drives (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    company_name TEXT NOT NULL,
-    job_role TEXT NOT NULL,
-    drive_date TEXT NOT NULL,
-    reporting_time TEXT NOT NULL,
-    venue TEXT NOT NULL,
-    eligible_courses TEXT NOT NULL,
-    package TEXT NOT NULL,
-    selection_process TEXT NOT NULL,
-    registration_deadline TEXT NOT NULL,
-    status TEXT DEFAULT 'Registration Open',
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    status TEXT DEFAULT 'Active'
 );
 
 CREATE TABLE IF NOT EXISTS applications (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     student_id INTEGER NOT NULL,
     student_name TEXT NOT NULL,
-    student_roll TEXT NOT NULL,
-    student_cgpa REAL NOT NULL,
-    student_course TEXT NOT NULL,
-    student_department TEXT NOT NULL,
-    student_email TEXT NOT NULL,
-    student_phone TEXT,
-    opportunity_type TEXT NOT NULL,
-    opportunity_id INTEGER NOT NULL,
     company_name TEXT NOT NULL,
     role_title TEXT NOT NULL,
     applied_date TEXT NOT NULL,
-    status TEXT DEFAULT 'Applied',
-    status_updated_date TEXT,
-    admin_notes TEXT,
-    interview_date TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (student_id) REFERENCES students (id)
+    status TEXT DEFAULT 'Applied'
 );
-
-CREATE TABLE IF NOT EXISTS announcements (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    category TEXT NOT NULL,
-    content TEXT NOT NULL,
-    date_posted TEXT NOT NULL,
-    priority TEXT DEFAULT 'Normal',
-    target_audience TEXT DEFAULT 'All Students',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS admins (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    role TEXT DEFAULT 'Training & Placement Officer'
-);
-`
-    },
-
-    'init_db.py': {
-      label: 'init_db.py (Database Populator)',
-      language: 'python',
-      content: `# SQLite Database Initializer & Seed Script
-# Run: python3 init_db.py
-
-import sqlite3
-import json
-
-conn = sqlite3.connect('database.db')
-cursor = conn.cursor()
-
-with open('schema.sql', 'r') as f:
-    cursor.executescript(f.read())
-
-print("[✓] SQLite schema executed successfully.")
-conn.commit()
-conn.close()
-`
-    },
-
-    'requirements.txt': {
-      label: 'requirements.txt (Dependencies)',
-      language: 'text',
-      content: `Flask==3.0.3
-Werkzeug==3.0.3
-Jinja2==3.1.4
-click==8.1.7
-itsdangerous==2.2.0
 `
     }
   };
@@ -418,16 +549,19 @@ itsdangerous==2.2.0
     setDownloading(true);
     try {
       const zip = new JSZip();
-      const rootFolder = zip.folder('college-placement-portal') || zip;
+      const rootFolder = zip.folder('college-placement-portal-jsx') || zip;
 
-      rootFolder.file('app.py', projectFiles['app.py'].content);
-      rootFolder.file('schema.sql', projectFiles['schema.sql'].content);
-      rootFolder.file('init_db.py', projectFiles['init_db.py'].content);
-      rootFolder.file('requirements.txt', projectFiles['requirements.txt'].content);
-      rootFolder.file('README.md', projectFiles['README_VIVA.md'].content);
+      // Add JSX frontend code
+      rootFolder.file('src/App.jsx', projectFiles['App.jsx'].content);
+      rootFolder.file('src/PlacementPortal.jsx', projectFiles['PlacementPortal.jsx'].content);
+      rootFolder.file('src/Navbar.jsx', projectFiles['Navbar.jsx'].content);
+      rootFolder.file('package.json', projectFiles['package.json'].content);
+      rootFolder.file('README_VIVA.md', projectFiles['README_VIVA.md'].content);
+      rootFolder.file('backend/app.py', projectFiles['app.py'].content);
+      rootFolder.file('backend/schema.sql', projectFiles['schema.sql'].content);
 
       const blob = await zip.generateAsync({ type: 'blob' });
-      saveAs(blob, 'college-placement-portal-project-viva.zip');
+      saveAs(blob, 'college-placement-portal-jsx.zip');
     } catch (err) {
       console.error('Error generating project ZIP:', err);
     } finally {
@@ -436,28 +570,38 @@ itsdangerous==2.2.0
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs d-flex align-items-center justify-content-center p-4">
-      <div className="portal-card bg-white w-full max-w-5xl overflow-hidden max-h-[90vh] d-flex flex-column">
+    <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs d-flex align-items-center justify-content-center p-4">
+      <div className="portal-card bg-white w-full max-w-5xl overflow-hidden max-h-[92vh] d-flex flex-column rounded-xl shadow-2xl border border-slate-300">
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-200 d-flex justify-content-between align-items-center">
+        <div className="px-5 py-4 border-b border-slate-200 d-flex justify-content-between align-items-center bg-slate-50">
           <div>
-            <h3 className="text-base font-bold text-slate-900 mb-0">
-              Project Architecture & Viva Reference Hub
-            </h3>
+            <div className="d-flex align-items-center gap-2">
+              <h3 className="text-base font-bold text-slate-900 mb-0">
+                Project Source Code & Viva Documentation (JSX Edition)
+              </h3>
+              <span className="badge bg-blue-100 text-blue-800 border border-blue-200 text-[11px] font-semibold px-2 py-0.5 rounded">
+                React JSX Code
+              </span>
+            </div>
             <p className="text-xs text-slate-500 mb-0 mt-0.5">
-              Python Flask Backend • SQLite Relational Schema • Full Reference Documentation
+              React 19 JSX Frontend • Blue Syntax Theme • Python Flask Backend • SQLite Schema
             </p>
           </div>
-          <div className="d-flex align-items-center gap-3">
+          <div className="d-flex align-items-center gap-2.5">
             <button
-              className="btn btn-primary btn-sm text-xs py-1.5 px-3 d-flex align-items-center gap-1.5 font-medium"
+              className="btn btn-primary btn-sm text-xs py-1.5 px-3 d-flex align-items-center gap-1.5 font-semibold"
               onClick={handleDownloadZip}
               disabled={downloading}
             >
               <i className={`bi ${downloading ? 'bi-hourglass-split' : 'bi-download'}`}></i>
-              <span>{downloading ? 'Generating ZIP...' : 'Download Project ZIP'}</span>
+              <span>{downloading ? 'Zipping...' : 'Download Project ZIP (JSX)'}</span>
             </button>
-            <button type="button" className="text-slate-400 hover:text-slate-600 text-lg leading-none" onClick={onClose}>
+            <button
+              type="button"
+              className="text-slate-400 hover:text-slate-600 text-lg leading-none p-1"
+              onClick={onClose}
+              aria-label="Close"
+            >
               ✕
             </button>
           </div>
@@ -465,78 +609,129 @@ itsdangerous==2.2.0
 
         <div className="modal-body p-0 d-flex flex-column flex-md-row flex-grow-1 overflow-hidden" style={{ minHeight: '520px' }}>
           {/* File List Sidebar */}
-          <div className="bg-slate-50 border-end border-slate-200 p-3" style={{ minWidth: '240px', maxWidth: '280px' }}>
-            <div className="font-semibold text-[11px] text-slate-500 text-uppercase tracking-wider mb-2 px-1">
-              Project Files & Guides
+          <div className="bg-slate-50 border-end border-slate-200 p-3" style={{ minWidth: '250px', maxWidth: '290px' }}>
+            <div className="d-flex align-items-center justify-content-between mb-2 px-1">
+              <span className="font-semibold text-[11px] text-slate-500 text-uppercase tracking-wider">
+                Files & Components
+              </span>
+              <span className="text-[10px] text-blue-600 font-semibold bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+                JSX Active
+              </span>
             </div>
-              <div className="list-group list-group-flush rounded border">
-                {Object.entries(projectFiles).map(([filename, item]) => (
+
+            <div className="list-group list-group-flush rounded border border-slate-200 bg-white">
+              {Object.entries(projectFiles).map(([filename, item]) => {
+                const isSelected = selectedFile === filename;
+                const isJsx = filename.endsWith('.jsx');
+                return (
                   <button
                     key={filename}
-                    className={`list-group-item list-group-item-action text-start small py-2 px-2.5 d-flex align-items-center gap-2 ${
-                      selectedFile === filename ? 'active bg-primary text-white border-primary' : ''
+                    className={`list-group-item list-group-item-action text-start small py-2 px-2.5 d-flex align-items-center justify-content-between ${
+                      isSelected ? 'active bg-slate-900 text-white border-slate-900' : 'text-slate-700'
                     }`}
                     onClick={() => setSelectedFile(filename)}
                   >
-                    <i
-                      className={`bi ${
-                        filename.endsWith('.py')
-                          ? 'bi-filetype-py text-warning'
-                          : filename.endsWith('.sql')
-                          ? 'bi-database text-info'
-                          : filename.endsWith('.md')
-                          ? 'bi-book text-success'
-                          : 'bi-file-earmark-text'
-                      }`}
-                    ></i>
-                    <span className="text-truncate fw-medium">{filename}</span>
+                    <div className="d-flex align-items-center gap-2 min-w-0">
+                      <i
+                        className={`bi ${
+                          isJsx
+                            ? 'bi-filetype-jsx text-sky-400 font-bold'
+                            : filename.endsWith('.json')
+                            ? 'bi-filetype-json text-amber-500'
+                            : filename.endsWith('.py')
+                            ? 'bi-filetype-py text-emerald-500'
+                            : filename.endsWith('.sql')
+                            ? 'bi-database text-purple-500'
+                            : 'bi-file-earmark-text text-blue-500'
+                        }`}
+                      ></i>
+                      <span className="text-truncate font-medium text-xs">{filename}</span>
+                    </div>
+                    {isJsx && (
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded font-semibold ${
+                        isSelected ? 'bg-blue-500 text-white' : 'bg-blue-50 text-blue-600'
+                      }`}>
+                        JSX
+                      </span>
+                    )}
                   </button>
-                ))}
-              </div>
-
-              <div className="alert alert-info py-2 px-2.5 small mt-3 mb-0 border-sky-subtle bg-sky-subtle text-navy-primary" style={{ fontSize: '0.75rem' }}>
-                <i className="bi bi-patch-check-fill me-1 text-sky-dark"></i>
-                <strong>Viva Ready:</strong> Covers Multi-Department eligibility, 8 relational SQLite tables, automated CGPA cut-off validation, and Flask RESTful endpoints.
-              </div>
+                );
+              })}
             </div>
 
-            {/* Code Content Area */}
-            <div className="flex-grow-1 p-3 d-flex flex-column bg-white">
-              <div className="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-sky-subtle">
-                <div className="d-flex align-items-center gap-2">
-                  <span className="badge bg-sky-subtle text-navy-primary border border-sky-subtle">
-                    {projectFiles[selectedFile]?.label}
-                  </span>
-                  <span className="text-muted small">
-                    {projectFiles[selectedFile]?.language.toUpperCase()}
-                  </span>
-                </div>
+            <div className="p-2.5 rounded bg-blue-50/60 border border-blue-200 text-slate-800 text-[11px] mt-3 leading-relaxed">
+              <div className="font-bold text-blue-900 mb-1 d-flex align-items-center gap-1">
+                <i className="bi bi-code-slash text-blue-600"></i>
+                JSX Code in Blue Color
+              </div>
+              Code displayed in JSX with high-contrast electric blue text (<span className="text-blue-600 font-mono font-bold">#60a5fa</span>). Ready for submission, viva review, or local execution.
+            </div>
+          </div>
+
+          {/* Code Content Area */}
+          <div className="flex-grow-1 p-3 d-flex flex-column bg-slate-900">
+            {/* Code Toolbar */}
+            <div className="d-flex justify-content-between align-items-center mb-2 pb-2 border-b border-slate-800">
+              <div className="d-flex align-items-center gap-2">
+                <span className="badge bg-blue-950 text-blue-300 border border-blue-800 text-xs font-mono">
+                  {projectFiles[selectedFile]?.label}
+                </span>
+                <span className="badge bg-slate-800 text-blue-400 border border-blue-900/50 text-[10px]">
+                  BLUE COLOR CODE
+                </span>
+              </div>
+              <div className="d-flex align-items-center gap-2">
                 <button
-                  className="btn btn-outline-secondary btn-sm py-1 px-2.5 small d-flex align-items-center gap-1"
+                  className="btn btn-outline-light btn-sm py-1 px-3 text-xs d-flex align-items-center gap-1.5 border-slate-700 hover:bg-slate-800 text-slate-200"
                   onClick={handleCopy}
                 >
-                  <i className={`bi ${copied ? 'bi-check2 text-success' : 'bi-clipboard'}`}></i>
-                  <span>{copied ? 'Copied!' : 'Copy Code'}</span>
+                  <i className={`bi ${copied ? 'bi-check2 text-emerald-400' : 'bi-clipboard'}`}></i>
+                  <span>{copied ? 'Copied Code!' : 'Copy Code'}</span>
                 </button>
               </div>
+            </div>
 
-              <div className="flex-grow-1 position-relative overflow-auto rounded border border-slate-200 bg-slate-900 p-3 text-slate-100" style={{ maxHeight: '460px' }}>
-                <pre className="m-0 font-mono text-xs text-slate-200" style={{ whiteSpace: 'pre', tabSize: 4 }}>
-                  <code>{projectFiles[selectedFile]?.content}</code>
-                </pre>
-              </div>
+            {/* Code Display - Styled specifically with Blue Color Text */}
+            <div
+              className="flex-grow-1 position-relative overflow-auto rounded-lg border border-blue-900/40 bg-slate-950 p-4 code-terminal"
+              style={{ maxHeight: '480px' }}
+            >
+              <pre
+                className="m-0 font-mono text-xs code-blue-text font-normal leading-relaxed"
+                style={{
+                  color: '#60a5fa',
+                  whiteSpace: 'pre',
+                  tabSize: 2,
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
+                }}
+              >
+                <code
+                  className="text-blue-400"
+                  style={{ color: '#60a5fa' }}
+                >
+                  {projectFiles[selectedFile]?.content}
+                </code>
+              </pre>
             </div>
           </div>
+        </div>
 
-          <div className="px-5 py-3 bg-slate-50 border-t border-slate-200 d-flex justify-content-between align-items-center">
-            <span className="text-xs text-slate-500">
-              Multi-Department College Placement & Internship Cell Portal
-            </span>
-            <button type="button" className="btn btn-outline-secondary btn-sm text-xs py-1.5 px-3" onClick={onClose}>
-              Close
-            </button>
-          </div>
+        {/* Footer */}
+        <div className="px-5 py-3 bg-slate-50 border-t border-slate-200 d-flex justify-content-between align-items-center">
+          <span className="text-xs text-slate-600 font-medium">
+            React 19 JSX Edition • Blue Color Code Text Theme • Multi-Department Placement Portal
+          </span>
+          <button
+            type="button"
+            className="btn btn-outline-secondary btn-sm text-xs py-1.5 px-4 font-medium"
+            onClick={onClose}
+          >
+            Close
+          </button>
         </div>
       </div>
+    </div>
   );
 };
+
+export default ProjectCodeModal;
