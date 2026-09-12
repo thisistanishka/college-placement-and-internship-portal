@@ -1,0 +1,8 @@
+{
+  "name": "Remix College Placement \u0026 Internship Cell Portal",
+  "description": "A modern, professional College Placement \u0026 Internship Cell Portal for students across all courses and departments (B.Tech, BCA, MCA, BBA, MBA, B.Com, B.Sc, BA) featuring opportunities, eligibility checks, application tracking, and TPO admin management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
